@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Nine Circles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game" width="480" height="270"></canvas>
+    <div id="ui"></div>
+  </div>
+
+  <!-- Core -->
+  <script src="src/core/namespace.js"></script>
+  <script src="src/core/util.js"></script>
+  <script src="src/core/input.js"></script>
+  <script src="src/core/audio.js"></script>
+  <script src="src/core/save.js"></script>
+  <script src="src/core/draw.js"></script>
+  <script src="src/core/art.js"></script>
+
+  <!-- Engine -->
+  <script src="src/engine/tiles.js"></script>
+  <script src="src/engine/physics.js"></script>
+  <script src="src/engine/flowfield.js"></script>
+  <script src="src/engine/status.js"></script>
+  <script src="src/engine/fx.js"></script>
+  <script src="src/engine/hooks.js"></script>
+  <script src="src/engine/combat.js"></script>
+  <script src="src/engine/projectile.js"></script>
+  <script src="src/engine/zones.js"></script>
+  <script src="src/engine/pickups.js"></script>
+  <script src="src/engine/props.js"></script>
+  <script src="src/engine/weapon.js"></script>
+  <script src="src/engine/player.js"></script>
+  <script src="src/engine/enemy.js"></script>
+  <script src="src/engine/brains.js"></script>
+  <script src="src/engine/boss.js"></script>
+  <script src="src/engine/bosskit.js"></script>
+  <script src="src/engine/hazards.js"></script>
+  <script src="src/engine/room.js"></script>
+  <script src="src/engine/world.js"></script>
+
+  <!-- Generation -->
+  <script src="src/gen/roomgen.js"></script>
+  <script src="src/gen/levelgen.js"></script>
+
+  <!-- Content: upgrades -->
+  <script src="src/content/cards.js"></script>
+  <script src="src/content/relics.js"></script>
+  <script src="src/content/treasures.js"></script>
+  <script src="src/content/meta.js"></script>
+
+  <!-- Content: enemies -->
+  <script src="src/content/enemies/earth.js"></script>
+  <script src="src/content/enemies/limbo.js"></script>
+  <script src="src/content/enemies/lust.js"></script>
+  <script src="src/content/enemies/greed.js"></script>
+  <script src="src/content/enemies/wrath.js"></script>
+  <script src="src/content/enemies/heresy.js"></script>
+  <script src="src/content/enemies/violence.js"></script>
+  <script src="src/content/enemies/fraud.js"></script>
+  <script src="src/content/enemies/treachery.js"></script>
+  <script src="src/content/enemies/summons.js"></script>
+
+  <!-- Content: biomes -->
+  <script src="src/content/biomes.js"></script>
+
+  <!-- Content: bosses -->
+  <script src="src/content/bosses/cerberus.js"></script>
+  <script src="src/content/bosses/charon.js"></script>
+  <script src="src/content/bosses/socrates.js"></script>
+  <script src="src/content/bosses/caesar.js"></script>
+  <script src="src/content/bosses/achilles.js"></script>
+  <script src="src/content/bosses/helen.js"></script>
+  <script src="src/content/bosses/midas.js"></script>
+  <script src="src/content/bosses/croesus.js"></script>
+  <script src="src/content/bosses/achilles_wrath.js"></script>
+  <script src="src/content/bosses/ajax.js"></script>
+  <script src="src/content/bosses/galileo.js"></script>
+  <script src="src/content/bosses/bruno.js"></script>
+  <script src="src/content/bosses/heracles.js"></script>
+  <script src="src/content/bosses/beowulf.js"></script>
+  <script src="src/content/bosses/odysseus.js"></script>
+  <script src="src/content/bosses/loki.js"></script>
+  <script src="src/content/bosses/brutus.js"></script>
+  <script src="src/content/bosses/judas.js"></script>
+  <script src="src/content/bosses/satan.js"></script>
+
+  <!-- Game -->
+  <script src="src/game/run.js"></script>
+  <script src="src/game/hud.js"></script>
+  <script src="src/game/ui.js"></script>
+  <script src="src/game/debug.js"></script>
+  <script src="src/game/game.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>

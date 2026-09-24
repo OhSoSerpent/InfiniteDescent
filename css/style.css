@@ -1,0 +1,101 @@
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  background: #07060a; overflow: hidden;
+  font-family: "Consolas", "Courier New", monospace;
+  color: #e8e0d0;
+  user-select: none;
+}
+#stage {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+}
+#game {
+  display: block; width: 100%; height: 100%;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  cursor: none;
+}
+#ui {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  /* font-size is set from JS so UI scales with the pixel canvas */
+}
+#ui .screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  pointer-events: auto;
+  background: rgba(6, 4, 10, 0.82);
+  cursor: default;
+  padding: 1em;
+  overflow-y: auto;
+}
+/* Centre content vertically, but let it scroll from the top when it overflows. */
+#ui .screen > :first-child { margin-top: auto; }
+#ui .screen > :last-child { margin-bottom: auto; }
+#ui .screen.clear { background: transparent; }
+#ui h1 { font-size: 3.2em; margin: 0 0 0.2em; letter-spacing: 0.15em; color: #e0443a; text-shadow: 0.08em 0.08em 0 #3a0a0a; }
+#ui h2 { font-size: 1.6em; margin: 0 0 0.5em; letter-spacing: 0.1em; color: #f0c060; text-shadow: 0.06em 0.06em 0 #2a1a00; }
+#ui h3 { font-size: 1.05em; margin: 0.3em 0; color: #f0c060; }
+#ui p { margin: 0.25em 0; line-height: 1.35; }
+#ui .sub { color: #a89c8c; font-size: 0.9em; }
+#ui .btn {
+  display: inline-block; min-width: 12em; margin: 0.25em;
+  padding: 0.45em 1em;
+  background: #2a1e2e; color: #f0e6d6;
+  border: 0.15em solid #6a4a5a; border-radius: 0;
+  font-family: inherit; font-size: 1em; letter-spacing: 0.08em;
+  cursor: pointer; text-align: center;
+  box-shadow: 0.15em 0.15em 0 #000;
+}
+#ui .btn:hover, #ui .btn:focus { background: #4a2a36; border-color: #e0443a; outline: none; }
+#ui .btn.small { min-width: 0; padding: 0.3em 0.7em; font-size: 0.85em; }
+#ui .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+#ui .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 0.6em; }
+#ui .col { display: flex; flex-direction: column; align-items: center; }
+
+/* Cards */
+#ui .card {
+  width: 11em; min-height: 13em;
+  background: #1c1620; border: 0.18em solid #5a4a60;
+  padding: 0.6em; cursor: pointer;
+  display: flex; flex-direction: column; gap: 0.3em;
+  box-shadow: 0.2em 0.2em 0 #000;
+  transition: transform 0.08s;
+}
+#ui .card:hover { transform: translateY(-0.2em); border-color: #f0c060; }
+#ui .card.selected { border-color: #f0c060; background: #2c2230; transform: translateY(-0.3em); }
+#ui .card .glyph {
+  width: 2.2em; height: 2.2em; display: flex; align-items: center; justify-content: center;
+  font-weight: bold; color: #000; font-size: 1em; align-self: center;
+  box-shadow: 0.12em 0.12em 0 #000;
+}
+#ui .card .name { font-weight: bold; color: #f0e0b0; text-align: center; font-size: 1em; }
+#ui .card .desc { font-size: 0.78em; color: #cfc4b4; line-height: 1.35; }
+#ui .card .warn { font-size: 0.72em; color: #ff8a70; }
+#ui .card.mini { width: 8em; min-height: 6.5em; padding: 0.4em; cursor: default; }
+#ui .card.mini:hover { transform: none; border-color: #5a4a60; }
+#ui .card.slot { cursor: pointer; }
+#ui .card.slot:hover { border-color: #f0c060; transform: translateY(-0.15em); }
+#ui .card.slot.empty { border-style: dashed; color: #6a5a70; align-items: center; justify-content: center; }
+#ui .card.slot.blocked { opacity: 0.35; cursor: not-allowed; }
+#ui .card.slot.blocked:hover { transform: none; border-color: #5a4a60; }
+#ui .card.slot.forced { border-color: #ff8a70; }
+
+#ui .weaponbox { background: #140f18; border: 0.15em solid #3a2e40; padding: 0.5em; margin: 0.3em; }
+#ui .weaponbox h3 { text-align: center; }
+
+#ui .relicgrid { display: flex; flex-wrap: wrap; gap: 0.35em; justify-content: center; max-width: 44em; }
+#ui .relic {
+  display: flex; gap: 0.4em; align-items: flex-start;
+  background: #1c1620; border: 0.12em solid #4a3a50; padding: 0.3em 0.45em; width: 21em;
+}
+#ui .relic .glyph { width: 1.8em; height: 1.8em; flex: none; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 0.8em; }
+#ui .relic .name { font-weight: bold; color: #f0e0b0; font-size: 0.85em; }
+#ui .relic .desc { font-size: 0.72em; color: #cfc4b4; }
+
+#ui .panel { background: #140f18; border: 0.15em solid #3a2e40; padding: 0.8em 1.2em; max-width: 46em; }
+#ui .controls td { padding: 0.12em 0.6em; font-size: 0.9em; }
+#ui .controls td:first-child { color: #f0c060; text-align: right; }
+#ui .stats td { padding: 0.1em 0.6em; }
+#ui .stats td:last-child { color: #f0c060; text-align: right; }
+#ui .scroll { max-height: 60vh; overflow-y: auto; }
