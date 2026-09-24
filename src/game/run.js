@@ -112,7 +112,8 @@
       G.FX.text(P.x, P.y - 30, label, '#ffe060');
       G.HUD.toast('FLAWLESS ROOM: ' + label, '#ffe060');
     },
-    // 2 in a hard-mode level, else 1. Scales enemy count/HP/damage and no-damage rewards.
+    // 2 in a hard-mode level, else 1. Scales enemy HP, damage taken and no-damage rewards
+    // (not enemy counts).
     hardMult() { return this.active && this.hard ? 2 : 1; },
     bonusSummary() {
       return ROOM_BONUS_STATS.map(s => s.label + ' +' + Math.round(this.bonus[s.key] * 100) + '%').join('   ');

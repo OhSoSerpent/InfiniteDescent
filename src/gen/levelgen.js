@@ -182,7 +182,7 @@
     makeWaves(room, rng, index) {
       const biome = room.biome;
       const area = (room.w - 2) * (room.h - 2);
-      let count = Math.round(3 + index * 0.6 + rng.int(0, 2) + area / 300) * G.Run.hardMult();
+      let count = Math.round(3 + index * 0.6 + rng.int(0, 2) + area / 300);
       const waves = [];
       const nWaves = count >= 10 ? 3 : count >= 6 ? 2 : 1;
       const eliteChance = index >= 2 ? 0.03 + 0.015 * index : 0;

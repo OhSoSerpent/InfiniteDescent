@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   const U = G.U, D = G.Draw, TS = G.CFG.TILE, T = G.T;
-  const { W, H } = G.CFG;
+  // The view size (G.CFG.W x G.CFG.H) follows the window, so it is always read live.
   const Hz = G.Hazards;
 
   // ---------------------------------------------------------------- ambient particles (screen space)
@@ -13,7 +13,7 @@
     id: 'particles',
     init(room, p) {
       const parts = [];
-      for (let i = 0; i < (p.count || 40); i++) parts.push({ x: Math.random() * W, y: Math.random() * H, s: 0.5 + Math.random() });
+      for (let i = 0; i < (p.count || 40); i++) parts.push({ x: Math.random() * G.CFG.W, y: Math.random() * G.CFG.H, s: 0.5 + Math.random() });
       return { parts };
     },
     update(room, st, dt, p) {
@@ -21,10 +21,10 @@
       for (const q of st.parts) {
         q.x += (p.vx || 0) * q.s * dt * (p.windy ? lvl : 1) + Math.sin((G.World.time + q.s * 10) * (p.sway || 0)) * (p.swayAmt || 0) * dt;
         q.y += (p.vy || 20) * q.s * dt;
-        if (q.y > H + 4) { q.y = -4; q.x = Math.random() * W; }
-        if (q.y < -6) { q.y = H + 2; q.x = Math.random() * W; }
-        if (q.x > W + 4) q.x = -4;
-        if (q.x < -6) q.x = W + 2;
+        if (q.y > G.CFG.H + 4) { q.y = -4; q.x = Math.random() * G.CFG.W; }
+        if (q.y < -6) { q.y = G.CFG.H + 2; q.x = Math.random() * G.CFG.W; }
+        if (q.x > G.CFG.W + 4) q.x = -4;
+        if (q.x < -6) q.x = G.CFG.W + 2;
       }
     },
     drawScreen(ctx, room, st, p) {
@@ -48,12 +48,12 @@
     init() { return {}; },
     update() {},
     drawScreen(ctx, room, st, p) {
-      D.alpha(p.alpha || 0.15, () => D.rect(0, 0, W, H, p.color || '#000'));
+      D.alpha(p.alpha || 0.15, () => D.rect(0, 0, G.CFG.W, G.CFG.H, p.color || '#000'));
       if (p.vignette) {
-        const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.85);
+        const g = ctx.createRadialGradient(G.CFG.W / 2, G.CFG.H / 2, G.CFG.H * 0.35, G.CFG.W / 2, G.CFG.H / 2, G.CFG.H * 0.85);
         g.addColorStop(0, 'rgba(0,0,0,0)');
         g.addColorStop(1, p.vignette);
-        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = g; ctx.fillRect(0, 0, G.CFG.W, G.CFG.H);
       }
     },
   });
@@ -81,7 +81,7 @@
       // streak visuals
       if (st.phase === 'gust' || st.phase === 'warn') {
         const n = st.phase === 'gust' ? 3 : 1;
-        for (let i = 0; i < n; i++) if (Math.random() < 0.8) st.streaks.push({ x: Math.random() * W, y: Math.random() * H, life: 0.4 });
+        for (let i = 0; i < n; i++) if (Math.random() < 0.8) st.streaks.push({ x: Math.random() * G.CFG.W, y: Math.random() * G.CFG.H, life: 0.4 });
       }
       for (let i = st.streaks.length - 1; i >= 0; i--) {
         const s = st.streaks[i];
@@ -95,10 +95,10 @@
         ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - Math.cos(st.dir) * 14, s.y - Math.sin(st.dir) * 14); ctx.stroke();
       }
       if (st.phase === 'warn') {
-        const x = W / 2 + Math.cos(st.dir) * 60, y = 40;
+        const x = G.CFG.W / 2 + Math.cos(st.dir) * 60, y = 40;
         D.alpha(0.6 + 0.4 * Math.sin(G.World.time * 20), () => {
-          D.text('WIND', W / 2, 30, '#d0d8ff', { align: 'center' });
-          D.line(W / 2, y, x, y + Math.sin(st.dir) * 12, '#d0d8ff', 2);
+          D.text('WIND', G.CFG.W / 2, 30, '#d0d8ff', { align: 'center' });
+          D.line(G.CFG.W / 2, y, x, y + Math.sin(st.dir) * 12, '#d0d8ff', 2);
         });
       }
     },

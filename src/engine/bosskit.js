@@ -234,22 +234,13 @@
         if (o.then) o.then(x, y);
       });
     },
-    // Hard mode doubles boss summons: each summon brings a twin (stored on e.twin so attacks
-    // that wait for their minions to die can track both).
     summon(b, enemyId, x, y, o = {}) {
-      const one = (px, py) => {
-        const pt = K.room().nearestGround(px, py);
-        const e = G.World.spawnEnemy(enemyId, pt.x, pt.y, Object.assign({ noCredit: true, hpScale: o.hpScale }, o));
-        e.aware = true;
-        if (b) b.children.push(e);
-        return e;
-      };
-      const e = one(x, y);
-      if (G.Run.hardMult() > 1) { const a = Math.random() * U.TAU; e.twin = one(x + Math.cos(a) * 14, y + Math.sin(a) * 14); }
+      const pt = K.room().nearestGround(x, y);
+      const e = G.World.spawnEnemy(enemyId, pt.x, pt.y, Object.assign({ noCredit: true, hpScale: o.hpScale }, o));
+      e.aware = true;
+      if (b) b.children.push(e);
       return e;
     },
-    // True while a summon (or its hard-mode twin) is still alive.
-    summonAlive(e) { return !e.dead || (e.twin && !e.twin.dead); },
     // Clone of a boss (same def), with its own HP / attack list / lifetime.
     spawnClone(b, o = {}) {
       const pt = o.x !== undefined ? K.room().nearestGround(o.x, o.y) : K.pointNear(b.x, b.y, 30, 70);

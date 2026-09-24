@@ -1,7 +1,7 @@
 // Keyboard + mouse + gamepad input, exposed as game "actions".
 (function () {
   'use strict';
-  const { W, H } = G.CFG;
+  // The view size (G.CFG.W x G.CFG.H) follows the window, so it is always read live.
 
   const BIND = {
     up: ['KeyW', 'ArrowUp'],
@@ -21,7 +21,7 @@
   const Input = {
     keys: new Set(),
     pressedKeys: new Set(),
-    mouse: { x: W / 2, y: H / 2, buttons: [false, false, false], pressed: [false, false, false] },
+    mouse: { x: G.CFG.W / 2, y: G.CFG.H / 2, buttons: [false, false, false], pressed: [false, false, false] },
     pad: { connected: false, axes: [0, 0, 0, 0], buttons: [], prev: [] },
     device: 'kb', // 'kb' or 'pad' — decides which aim source is used
 
@@ -40,8 +40,8 @@
       });
       const updateMouse = e => {
         const r = canvas.getBoundingClientRect();
-        this.mouse.x = ((e.clientX - r.left) / r.width) * W;
-        this.mouse.y = ((e.clientY - r.top) / r.height) * H;
+        this.mouse.x = ((e.clientX - r.left) / r.width) * G.CFG.W;
+        this.mouse.y = ((e.clientY - r.top) / r.height) * G.CFG.H;
       };
       window.addEventListener('mousemove', e => { updateMouse(e); this.device = 'kb'; });
       canvas.addEventListener('mousedown', e => {

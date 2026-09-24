@@ -1,7 +1,10 @@
 // Canvas setup, crisp pixel primitives, bitmap font, and the camera.
 (function () {
   'use strict';
-  const { W, H } = G.CFG;
+  // The view (G.CFG.W x G.CFG.H game pixels) follows the window so the game always fills it
+  // (see resize); both values are read live everywhere instead of being captured.
+  const BASE_H = 270; // normal view height in game pixels
+  const MIN_W = 400;  // narrower windows (portrait) keep this width and get a taller view instead
   const U = G.U;
 
   const canvas = document.getElementById('game');
@@ -58,13 +61,19 @@
   const Draw = {
     canvas, ctx, scale: 1,
 
+    // Fill the whole window: scale a 270-pixel-tall view to the window height and widen or
+    // narrow it to match the window's shape. Very narrow windows get a taller view instead.
     resize() {
-      const s = Math.min(window.innerWidth / W, window.innerHeight / H);
-      const scale = s >= 1 ? Math.floor(s) : s;
+      const iw = window.innerWidth, ih = window.innerHeight;
+      let scale = ih / BASE_H;
+      let w = Math.round(iw / scale), h = BASE_H;
+      if (w < MIN_W) { w = MIN_W; scale = iw / MIN_W; h = Math.round(ih / scale); }
+      G.CFG.W = w; G.CFG.H = h;
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
       this.scale = scale;
       const stage = document.getElementById('stage');
-      stage.style.width = W * scale + 'px';
-      stage.style.height = H * scale + 'px';
+      stage.style.width = iw + 'px';
+      stage.style.height = ih + 'px';
       document.getElementById('ui').style.fontSize = Math.max(8, 4 * scale) + 'px';
       ctx.imageSmoothingEnabled = false;
     },
@@ -146,13 +155,13 @@
   // ---------- camera ----------
   const Cam = {
     x: 0, y: 0, shakeT: 0, shakeMag: 0, ox: 0, oy: 0,
-    snap(px, py, roomW, roomH) { this.x = this._tx(px, roomW, W); this.y = this._tx(py, roomH, H); },
+    snap(px, py, roomW, roomH) { this.x = this._tx(px, roomW, G.CFG.W); this.y = this._tx(py, roomH, G.CFG.H); },
     _tx(p, size, view) {
       if (size <= view) return (size - view) / 2;
       return U.clamp(p - view / 2, 0, size - view);
     },
     follow(px, py, roomW, roomH, dt) {
-      const tx = this._tx(px, roomW, W), ty = this._tx(py, roomH, H);
+      const tx = this._tx(px, roomW, G.CFG.W), ty = this._tx(py, roomH, G.CFG.H);
       const k = Math.min(1, dt * 10);
       this.x += (tx - this.x) * k;
       this.y += (ty - this.y) * k;

@@ -80,8 +80,8 @@ G.Debug.sim(10)              // step 10s of simulation with an auto-aim bot (wor
 - **Flawless level**: losing no HP anywhere on a level makes an extra relic appear after its boss
   (not on the final level). Hits fully blocked by Aegis or Golden Ward don't count as damage.
 - **Hard mode**: bosses on levels 1-8 drop a solid skull. Five bullet hits light its eyes red and lock the
-  next level (only that level) into hard mode: double enemy count, HP (bosses and clones included),
-  damage taken and boss summons, plus double rewards (two relics in the relic room, a +6% flawless-room
+  next level (only that level) into hard mode: double enemy HP (bosses, summons and clones included) and
+  double damage taken, with the same enemy counts as normal, plus double rewards (two relics in the relic room, a +6% flawless-room
   bonus, two flawless-level relics). No skull after level 9, so the final fight is never hard.
 - **Ammo packs**: every room has 1-2. Walking over one instantly refills both pistols. A pack stays on the
   floor if both pistols are already full.

@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const U = G.U, D = G.Draw;
-  const { W, H } = G.CFG;
+  // The view size (G.CFG.W x G.CFG.H) follows the window, so it is always read live.
 
   const HUD = {
     banners: [], toasts: [],
@@ -95,7 +95,7 @@
     },
 
     _weapons(P) {
-      const baseY = H - 34;
+      const baseY = G.CFG.H - 34;
       P.weapons.forEach((w, i) => {
         const x = 6 + i * 112, y = baseY;
         const active = i === P.cur;
@@ -141,7 +141,7 @@
       for (const r of known) { minX = Math.min(minX, r.gx); minY = Math.min(minY, r.gy); maxX = Math.max(maxX, r.gx); maxY = Math.max(maxY, r.gy); }
       const cw = 9, ch = 6, gap = 2;
       const w = (maxX - minX + 1) * (cw + gap), h = (maxY - minY + 1) * (ch + gap);
-      const ox = W - w - 6, oy = 6;
+      const ox = G.CFG.W - w - 6, oy = 6;
       D.alpha(0.5, () => D.rect(ox - 3, oy - 3, w + 5, h + 5, '#000'));
       for (const r of known) {
         const x = ox + (r.gx - minX) * (cw + gap), y = oy + (r.gy - minY) * (ch + gap);
@@ -162,8 +162,8 @@
     _boss() {
       const b = G.World.boss;
       if (!b || b.dead) return;
-      const w = 190, x = (W - w) / 2, y = 15;
-      D.text(b.bossDef.name.toUpperCase(), W / 2, y - 10, '#f0c0a0', { align: 'center' });
+      const w = 190, x = (G.CFG.W - w) / 2, y = 15;
+      D.text(b.bossDef.name.toUpperCase(), G.CFG.W / 2, y - 10, '#f0c0a0', { align: 'center' });
       D.rect(x - 1, y - 1, w + 2, 7, '#000');
       D.rect(x, y, w, 5, '#2a0808');
       D.rect(x, y, w * U.clamp(b.hp / b.maxHp, 0, 1), 5, b.invulnerable ? '#8080a0' : '#c02020');
@@ -177,14 +177,14 @@
           if (b.small) {
             const lines = D.wrap(b.sub, 60);
             const y = 60;
-            D.alpha(0.6, () => D.rect(0, y - 6, W, 22 + lines.length * 9, '#000'));
-            D.text(b.title, W / 2, y, '#ffd060', { align: 'center' });
-            lines.forEach((l, i) => D.text(l, W / 2, y + 12 + i * 9, '#e0d8c8', { align: 'center' }));
+            D.alpha(0.6, () => D.rect(0, y - 6, G.CFG.W, 22 + lines.length * 9, '#000'));
+            D.text(b.title, G.CFG.W / 2, y, '#ffd060', { align: 'center' });
+            lines.forEach((l, i) => D.text(l, G.CFG.W / 2, y + 12 + i * 9, '#e0d8c8', { align: 'center' }));
           } else {
             const y = 88;
-            D.alpha(0.55, () => D.rect(0, y - 8, W, 44, '#000'));
-            D.text(b.title, W / 2, y, '#e04a3a', { align: 'center', scale: 2 });
-            D.text(b.sub, W / 2, y + 20, '#d8c8b0', { align: 'center' });
+            D.alpha(0.55, () => D.rect(0, y - 8, G.CFG.W, 44, '#000'));
+            D.text(b.title, G.CFG.W / 2, y, '#e04a3a', { align: 'center', scale: 2 });
+            D.text(b.sub, G.CFG.W / 2, y + 20, '#d8c8b0', { align: 'center' });
           }
         });
       }
@@ -193,7 +193,7 @@
     _toasts() {
       let y = 150;
       for (const t of this.toasts) {
-        D.alpha(Math.min(1, t.t * 2), () => D.text(t.msg, W / 2, y, t.color, { align: 'center' }));
+        D.alpha(Math.min(1, t.t * 2), () => D.text(t.msg, G.CFG.W / 2, y, t.color, { align: 'center' }));
         y += 10;
       }
     },

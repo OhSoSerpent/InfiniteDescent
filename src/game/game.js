@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const D = G.Draw, U = G.U;
-  const { W, H } = G.CFG;
+  // The view size (G.CFG.W x G.CFG.H) follows the window, so it is always read live.
   const STEP = 1 / 60;
 
   const Game = {
@@ -25,6 +25,11 @@
     loop(ts) {
       const dt = Math.min(0.1, (ts - this.last) / 1000);
       this.last = ts;
+      // Keep filling the window even if a resize event is missed (zoom, fullscreen, etc.).
+      if (window.innerWidth !== this.vw || window.innerHeight !== this.vh) {
+        this.vw = window.innerWidth; this.vh = window.innerHeight;
+        D.resize();
+      }
       G.Input.poll();
       this.acc += dt;
       let steps = 0;
@@ -77,7 +82,7 @@
       const ctx = D.ctx;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = '#07060a';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, G.CFG.W, G.CFG.H);
       if (this.state === 'menu') { this._menuBg(ctx); return; }
       G.World.draw(ctx);
       if (this.state !== 'dead') G.HUD.draw(ctx);
@@ -87,11 +92,11 @@
       const t = this.menuT;
       for (let i = 0; i < 9; i++) {
         const r = 30 + i * 22 + (t * 6) % 22;
-        D.alpha(0.08 + i * 0.012, () => D.ring(W / 2, H * 0.62, r, i % 2 ? '#e0443a' : '#6a2030', 2));
+        D.alpha(0.08 + i * 0.012, () => D.ring(G.CFG.W / 2, G.CFG.H * 0.62, r, i % 2 ? '#e0443a' : '#6a2030', 2));
       }
       for (let i = 0; i < 40; i++) {
-        const x = (U.hash2(i, 1) * W + Math.sin(t * 0.5 + i) * 10) % W;
-        const y = H - ((t * (10 + U.hash2(i, 2) * 30) + U.hash2(i, 3) * H) % H);
+        const x = (U.hash2(i, 1) * G.CFG.W + Math.sin(t * 0.5 + i) * 10) % G.CFG.W;
+        const y = G.CFG.H - ((t * (10 + U.hash2(i, 2) * 30) + U.hash2(i, 3) * G.CFG.H) % G.CFG.H);
         D.rect(x, y, 1, 1, i % 3 ? '#ff6020' : '#ffd060');
       }
     },

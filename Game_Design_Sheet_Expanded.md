@@ -486,11 +486,10 @@ Hard Mode:
   - Once the eyes glow, the choice is locked in and cannot be undone
   - The level 9 boss does not drop a skull, so the final level (the trophy room and Satan) is never in hard mode
 - Hard mode only lasts for one level. The player is not committing to hard mode for the entire run, just the next level
-- In hard mode, everything is doubled:
-  - Twice as many enemies spawn in each room
-  - Boss summons are doubled (e.g. Socrates' fly swarm)
+- In hard mode, enemy health and damage are doubled:
   - All damage the player takes is doubled (enemies, bosses and environmental hazards)
-  - All enemies have double health, including the boss and any clones it creates
+  - All enemies have double health, including the boss, its summons and any clones it creates
+  - The number of enemies that spawn is NOT doubled (same waves and boss summons as a normal level)
 - Hard mode also doubles the rewards:
   - The relic room holds two relics instead of one
   - Clearing a room without taking damage gives a 6% stat buff instead of 3%
