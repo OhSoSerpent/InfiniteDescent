@@ -80,7 +80,7 @@
         b.moveMode = 'keep';
         // Keep attacking until every fly is dead.
         let t = 0;
-        while (flies.some(f => !f.dead) && !b.dead) {
+        while (flies.some(f => K.summonAlive(f)) && !b.dead) {
           const dt = yield;
           t += dt;
           if (t >= 1.8) {

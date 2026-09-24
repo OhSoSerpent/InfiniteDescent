@@ -104,6 +104,11 @@
             if (e.dead || e.spawning > 0 || e.hidden) continue;
             if (U.dist(this.x, this.y, e.x, e.y) <= this.r + e.r) this._hitEnemy(e, 0.35, true);
           }
+          // Orbs strike each shootable prop they pass over once.
+          for (const pr of G.World.room.props) {
+            if (!pr.shootable || pr.dead || this.hitSet.has(pr)) continue;
+            if (U.dist(this.x, this.y, pr.x, pr.y) <= pr.r + this.r) { this.hitSet.add(pr); pr.damage(this.dmg * this.fireMult, this); }
+          }
         }
       }
 
@@ -194,7 +199,7 @@
         if (!pr.shootable || pr.dead || this.hitSet.has(pr)) continue;
         if (U.dist(this.x, this.y, pr.x, pr.y) <= pr.r + this.r) {
           this.hitSet.add(pr);
-          pr.damage(this.dmg * this.fireMult);
+          pr.damage(this.dmg * this.fireMult, this);
           if (!this.pierce && !this.styx) { this.kill('prop'); return; }
         }
       }

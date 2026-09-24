@@ -35,8 +35,7 @@
       this._buffs(P);
       this._weapons(P);
       this._minimap();
-      this._boss();
-      this._banners();
+      this._boss();      this._banners();
       this._toasts();
       if (G.Input.device === 'kb' && G.Game.state === 'play') this._crosshair();
     },

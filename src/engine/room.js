@@ -142,6 +142,29 @@
       return { x: this.pxW / 2, y: this.pxH / 2 };
     }
 
+    // Nearest tile centre where a box of half-size r fits without touching a blocked tile.
+    nearestFree(x, y, r, blocked) {
+      const cx = Math.floor(x / TS), cy = Math.floor(y / TS);
+      const fits = (tx, ty) => {
+        if (!this.isStandable(tx, ty)) return null;
+        const c = this.tileCenter(tx, ty);
+        return G.Physics.overlaps(c.x, c.y, r, blocked) ? null : c;
+      };
+      if (!G.Physics.overlaps(x, y, r, blocked) && this.isStandable(cx, cy)) return { x, y };
+      for (let rad = 0; rad < Math.max(this.w, this.h); rad++) {
+        let best = null, bd = Infinity;
+        for (let ty = cy - rad; ty <= cy + rad; ty++) for (let tx = cx - rad; tx <= cx + rad; tx++) {
+          if (Math.max(Math.abs(tx - cx), Math.abs(ty - cy)) !== rad) continue;
+          const c = fits(tx, ty);
+          if (!c) continue;
+          const d = U.dist2(c.x, c.y, x, y);
+          if (d < bd) { bd = d; best = c; }
+        }
+        if (best) return best;
+      }
+      return this.nearestGround(x, y);
+    }
+
     destroyObstacle(tx, ty) {
       if (this.tileAt(tx, ty) !== T.OBST) return;
       this.setTile(tx, ty, T.FLOOR);

@@ -21,7 +21,7 @@
       const hpScale = opts.hpScale !== undefined ? opts.hpScale : 1 + 0.22 * (lvl - 1);
       const dmgScale = opts.dmgScale !== undefined ? opts.dmgScale : 1 + 0.1 * (lvl - 1);
       this.r = (def.r || 6) * (this.elite ? 1.2 : 1);
-      this.maxHp = def.hp * hpScale * (this.elite ? 2.5 : 1);
+      this.maxHp = def.hp * hpScale * (this.elite ? 2.5 : 1) * G.Run.hardMult();
       this.hp = this.maxHp * (opts.hpFrac || 1);
       this.speed = def.speed || 50;
       this.dmg = (def.dmg || 10) * dmgScale * (this.elite ? 1.3 : 1);

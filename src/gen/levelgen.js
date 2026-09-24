@@ -133,8 +133,12 @@
           break;
         case 'relic': {
           const c = room.tileCenter(Math.floor(room.w / 2), Math.floor(room.h / 2));
-          const id = G.Run.drawRelic();
-          room.props.push(new G.Props.RelicPedestal({ x: c.x - 8, y: c.y, relicId: id }));
+          // Hard mode: two relics side by side.
+          const n = G.Run.hardMult();
+          for (let k = 0; k < n; k++) {
+            const x = c.x - 8 + (n > 1 ? (k === 0 ? -28 : 28) : 0);
+            room.props.push(new G.Props.RelicPedestal({ x, y: c.y, relicId: G.Run.drawRelic() }));
+          }
           G.RG.arenaPillars(room, rng, biome.obstacles[0][0]);
           break;
         }
@@ -178,7 +182,7 @@
     makeWaves(room, rng, index) {
       const biome = room.biome;
       const area = (room.w - 2) * (room.h - 2);
-      let count = Math.round(3 + index * 0.6 + rng.int(0, 2) + area / 300);
+      let count = Math.round(3 + index * 0.6 + rng.int(0, 2) + area / 300) * G.Run.hardMult();
       const waves = [];
       const nWaves = count >= 10 ? 3 : count >= 6 ? 2 : 1;
       const eliteChance = index >= 2 ? 0.03 + 0.015 * index : 0;

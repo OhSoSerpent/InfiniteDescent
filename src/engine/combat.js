@@ -115,6 +115,8 @@
       let m = P.stats.takenMult * Hooks.relicMult('takenMult', { info, player: P });
       if (info.source === 'hazard') m *= P.stats.hazardMult;
       if (info.attacker && info.attacker.elite) m *= P.stats.eliteTakenMult;
+      // Hard mode doubles all damage the player takes (Moirai's delayed damage was already scaled).
+      if (info.source !== 'fate') m *= G.Run.hardMult();
       amount *= m;
 
       const ctx = { amount, info, player: P };

@@ -150,15 +150,19 @@
         G.HUD.banner('SATAN FALLS', 'Claim your prize.', 3);
         return;
       }
-      // Flawless level (no HP lost anywhere on it): an extra relic drops.
+      // Flawless level (no HP lost anywhere on it): an extra relic drops (two in hard mode).
       if (!G.Run.levelHit) {
-        const id = G.Run.drawRelic();
-        if (id) {
-          const pt = room.nearestGround(cx, cy + 56);
+        const n = G.Run.hardMult();
+        let dropped = 0;
+        for (let k = 0; k < n; k++) {
+          const id = G.Run.drawRelic();
+          if (!id) break;
+          const pt = room.nearestGround(cx + (n > 1 ? (k === 0 ? -30 : 30) : 0), cy + 56);
           room.props.push(new G.Props.RelicPedestal({ x: pt.x, y: pt.y, relicId: id }));
-          G.HUD.toast('FLAWLESS LEVEL! A RELIC APPEARS', '#ffe060');
           G.FX.burst(pt.x, pt.y, 30, '#ffe060', 70, 0.6);
+          dropped++;
         }
+        if (dropped) G.HUD.toast(dropped > 1 ? 'FLAWLESS LEVEL! TWO RELICS APPEAR' : 'FLAWLESS LEVEL! A RELIC APPEARS', '#ffe060');
       }
       const spawnPortal = () => {
         const pt = room.nearestGround(cx, cy);

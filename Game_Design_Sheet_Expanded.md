@@ -477,5 +477,24 @@ Additional Relics:
   - Once per level, when you would take lethal damage, the damage is delayed for 2 seconds.
   - Killing an enemy during those 2 seconds prevents the delayed damage.
 
+Hard Mode:
+
+- When the player kills a boss on levels 1 through 8, the boss drops a skull obstacle
+  - The skull is solid and cannot be walked through
+  - Shooting the skull with 5 bullets makes its eyes glow red, which indicates that the next level is in hard mode
+  - Explosions and other non-bullet damage do not count toward the 5 hits
+  - Once the eyes glow, the choice is locked in and cannot be undone
+  - The level 9 boss does not drop a skull, so the final level (the trophy room and Satan) is never in hard mode
+- Hard mode only lasts for one level. The player is not committing to hard mode for the entire run, just the next level
+- In hard mode, everything is doubled:
+  - Twice as many enemies spawn in each room
+  - Boss summons are doubled (e.g. Socrates' fly swarm)
+  - All damage the player takes is doubled (enemies, bosses and environmental hazards)
+  - All enemies have double health, including the boss and any clones it creates
+- Hard mode also doubles the rewards:
+  - The relic room holds two relics instead of one
+  - Clearing a room without taking damage gives a 6% stat buff instead of 3%
+  - Completing the whole level without taking damage drops two extra relics when the boss dies instead of one
+
 Meta progression items:
 PLACEHOLDER. DO NOT IMPLEMENT

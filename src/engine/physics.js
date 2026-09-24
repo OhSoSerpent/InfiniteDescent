@@ -17,23 +17,30 @@
       }
       return { hitX, hitY };
     },
+    // Moves along one axis and resolves only against the leading edge (the column/row the box
+    // is moving into). Tiles overlapped on the other axis are ignored, so a pre-existing
+    // overlap can never drag an entity sideways into (or through) a wall.
     _axis(ent, dx, dy, blocked) {
       const r = ent.r;
       ent.x += dx; ent.y += dy;
-      const x0 = Math.floor((ent.x - r) / TS), x1 = Math.floor((ent.x + r - EPS) / TS);
-      const y0 = Math.floor((ent.y - r) / TS), y1 = Math.floor((ent.y + r - EPS) / TS);
-      let hit = false;
-      for (let ty = y0; ty <= y1; ty++) {
+      if (dx !== 0) {
+        const tx = dx > 0 ? Math.floor((ent.x + r - EPS) / TS) : Math.floor((ent.x - r) / TS);
+        const y0 = Math.floor((ent.y - r) / TS), y1 = Math.floor((ent.y + r - EPS) / TS);
+        for (let ty = y0; ty <= y1; ty++) {
+          if (!blocked(tx, ty)) continue;
+          ent.x = dx > 0 ? tx * TS - r - EPS : (tx + 1) * TS + r + EPS;
+          return true;
+        }
+      } else if (dy !== 0) {
+        const ty = dy > 0 ? Math.floor((ent.y + r - EPS) / TS) : Math.floor((ent.y - r) / TS);
+        const x0 = Math.floor((ent.x - r) / TS), x1 = Math.floor((ent.x + r - EPS) / TS);
         for (let tx = x0; tx <= x1; tx++) {
           if (!blocked(tx, ty)) continue;
-          hit = true;
-          if (dx > 0) ent.x = Math.min(ent.x, tx * TS - r - EPS);
-          else if (dx < 0) ent.x = Math.max(ent.x, (tx + 1) * TS + r + EPS);
-          if (dy > 0) ent.y = Math.min(ent.y, ty * TS - r - EPS);
-          else if (dy < 0) ent.y = Math.max(ent.y, (ty + 1) * TS + r + EPS);
+          ent.y = dy > 0 ? ty * TS - r - EPS : (ty + 1) * TS + r + EPS;
+          return true;
         }
       }
-      return hit;
+      return false;
     },
     // True if the entity's box overlaps any blocked tile.
     overlaps(x, y, r, blocked) {

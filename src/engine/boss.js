@@ -27,7 +27,7 @@
       this.bossDef = def;
       this.isClone = !!opts.isClone;
       this.isBoss = !this.isClone;
-      this.maxHp = opts.hp || def.hp;
+      this.maxHp = (opts.hp || def.hp) * G.Run.hardMult();
       this.hp = this.maxHp;
       this.dmg = opts.dmg || def.dmg || 15;
       this.speed = def.speed || 60;

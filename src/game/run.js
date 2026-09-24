@@ -35,6 +35,8 @@
       this.stats = { kills: 0, shots: 0, damageDealt: 0, damageTaken: 0, gold: 0, time: 0 };
       this.bonus = { fireRate: 0, moveSpeed: 0, reloadSpeed: 0 };
       this.levelHit = false;
+      this.hard = false;     // is the current level in hard mode?
+      this.hardNext = false; // set by the boss skull: the next level will be hard
       this.levelIndex = 0;
       this.player = new G.Player(0, 0);
       const S = G.Save.data;
@@ -46,13 +48,17 @@
     startLevel(i) {
       this.levelIndex = i;
       this.levelHit = false; // becomes true the first time the player loses HP this level
+      // Hard mode lasts exactly one level (must be set before generation: it doubles spawns and relics).
+      this.hard = this.hardNext;
+      this.hardNext = false;
       const biome = G.biomeForLevel(i);
       this.chooseBoss(i);
       this.level = G.LevelGen.generate(i, biome, G.rng);
       G.World.reset();
       G.World.loadLevel(this.level, this.player);
       G.Hooks.relic('onLevelStart', { level: i, player: this.player });
-      G.HUD.banner(i === LAST_LEVEL ? biome.name.toUpperCase() : 'LEVEL ' + i + ': ' + biome.name.toUpperCase(), biome.subtitle, 2.6);
+      const title = i === LAST_LEVEL ? biome.name.toUpperCase() : 'LEVEL ' + i + ': ' + biome.name.toUpperCase();
+      G.HUD.banner(title, biome.subtitle, 2.6); // hard mode is deliberately never announced
       const S = G.Save.data;
       if (i > S.stats.bestLevel) { S.stats.bestLevel = i; G.Save.save(); }
     },
@@ -99,12 +105,15 @@
     // Called when a combat room is cleared without taking damage: +3% to a random stat.
     grantRoomBonus() {
       const stat = G.rng.pick(ROOM_BONUS_STATS);
-      this.bonus[stat.key] += ROOM_BONUS;
+      const amt = ROOM_BONUS * this.hardMult();
+      this.bonus[stat.key] += amt;
       const P = this.player;
-      const label = '+' + Math.round(ROOM_BONUS * 100) + '% ' + stat.label;
+      const label = '+' + Math.round(amt * 100) + '% ' + stat.label;
       G.FX.text(P.x, P.y - 30, label, '#ffe060');
       G.HUD.toast('FLAWLESS ROOM: ' + label, '#ffe060');
     },
+    // 2 in a hard-mode level, else 1. Scales enemy count/HP/damage and no-damage rewards.
+    hardMult() { return this.active && this.hard ? 2 : 1; },
     bonusSummary() {
       return ROOM_BONUS_STATS.map(s => s.label + ' +' + Math.round(this.bonus[s.key] * 100) + '%').join('   ');
     },

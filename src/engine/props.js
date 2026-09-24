@@ -283,6 +283,67 @@
     }
   }
 
+  // ------------------------------------------------------------ boss skull (hard-mode switch)
+  // Dropped by bosses on levels 1-8. Five bullet hits light its eyes red and commit the NEXT
+  // level to hard mode (one level only; cannot be undone). It is solid to the player.
+  class Skull extends Prop {
+    constructor(o) { super(Object.assign({ r: 8, shootable: true, hits: 0, lit: false, flash: 0 }, o)); }
+    static get HITS() { return 5; }
+    damage(amount, source) {
+      if (this.lit || !(source instanceof G.Projectile)) return; // only bullets count
+      this.hits++;
+      this.flash = 0.08;
+      G.Audio.play('hit');
+      G.FX.burst(this.x, this.y - 4, 4, '#e8e0d0', 30, 0.2);
+      if (this.hits >= Skull.HITS) this.light();
+    }
+    light() {
+      this.lit = true;
+      G.Run.hardNext = true;
+      G.Audio.play('boss');
+      G.Cam.shake(4, 0.4);
+      G.FX.flash('#ff0000', 0.25);
+      G.FX.burst(this.x, this.y - 4, 30, '#ff2020', 70, 0.6);    }
+    update(dt) {
+      super.update(dt);
+      if (this.flash > 0) this.flash -= dt;
+      // Solid: push the player out.
+      const P = G.World.player;
+      if (P && !P.dead) {
+        const d = U.dist(P.x, P.y, this.x, this.y), min = this.r + P.r;
+        if (d < min) {
+          const a = d > 0.01 ? U.angle(this.x, this.y, P.x, P.y) : 0;
+          const room = G.World.room;
+          G.Physics.move(P, Math.cos(a) * (min - d), Math.sin(a) * (min - d), (tx, ty) => room.solidAt(tx, ty, false));
+        }
+      }
+      if (this.lit && Math.random() < dt * 10) {
+        for (const ex of [-3, 3]) G.FX.particle(this.x + ex, this.y - 5, (Math.random() - 0.5) * 6, -12, 0.5, '#ff3020');
+      }
+    }
+    draw() {
+      const x = Math.round(this.x), y = Math.round(this.y);
+      const bone = this.flash > 0 ? '#ffffff' : '#e0d8c4', dark = '#8a8070';
+      D.ellipse(x, y + 7, 9, 2, 'rgba(0,0,0,0.35)');
+      D.rect(x - 7, y - 11, 14, 11, dark);
+      D.rect(x - 6, y - 12, 12, 11, bone);
+      D.rect(x - 7, y - 9, 14, 6, bone);
+      D.rect(x - 4, y - 1, 8, 5, bone);              // jaw
+      D.rect(x - 3, y + 1, 1, 3, dark); D.rect(x - 1, y + 1, 1, 3, dark); D.rect(x + 1, y + 1, 1, 3, dark); D.rect(x + 3, y + 1, 1, 3, dark);
+      D.rect(x - 1, y - 3, 2, 2, dark);              // nose
+      // Cracks appear with each hit.
+      const cracks = [[-5, -11, 1, 3], [3, -12, 1, 4], [-2, -12, 1, 2], [5, -8, 1, 3], [-6, -6, 1, 2]];
+      for (let i = 0; i < Math.min(this.hits, cracks.length); i++) { const c = cracks[i]; D.rect(x + c[0], y + c[1], c[2], c[3], dark); }
+      // Eyes: dark sockets, or glowing red once lit.
+      const eye = this.lit ? '#ff2020' : '#1a1410';
+      D.rect(x - 5, y - 8, 3, 3, eye); D.rect(x + 2, y - 8, 3, 3, eye);
+      // No labels or counters: the cracks and the glow are the only hints (hard mode is meant to be cryptic).
+      if (this.lit) {
+        D.alpha(0.35 + 0.25 * Math.sin(this.t * 8), () => { D.circ(x - 3.5, y - 6.5, 4, '#ff2020'); D.circ(x + 3.5, y - 6.5, 4, '#ff2020'); });
+      }
+    }
+  }
+
   G.Prop = Prop;
-  G.Props = { RelicPedestal, CardPedestal, Portal, MetaItem, Trophy, Grave, Corpse, Platform, DartTrap, Treasure, PressurePlate };
+  G.Props = { RelicPedestal, CardPedestal, Portal, MetaItem, Trophy, Grave, Corpse, Platform, DartTrap, Treasure, PressurePlate, Skull };
 })();

@@ -120,6 +120,7 @@
       G.Cam.shake(8, 0.8);
       G.FX.burst(b.x, b.y, 80, '#ffffff', 140, 1, 2);
       G.Run.onBossDefeated(b.bossDef);
+      this.dropSkull(b);
       G.Game.slowmo(1.0);
       room.cleared = true;
       room.locked = false;
@@ -128,10 +129,27 @@
       this.addEffect(t);
     },
 
+    // Levels 1-8: the boss leaves a skull; shooting it makes the next level hard mode.
+    // (Not after level 9, whose next level is the final one, nor after Satan.)
+    dropSkull(b) {
+      if (G.Run.levelIndex > 8) return;
+      const room = this.room;
+      const cx = room.pxW / 2, cy = room.pxH / 2;
+      let x = b.x, y = b.y;
+      // Keep clear of the portal (centre) and the flawless-relic spot just below it.
+      if (U.dist(x, y, cx, cy + 28) < 70) {
+        const a = U.dist(x, y, cx, cy) > 1 ? U.angle(cx, cy, x, y) : 0;
+        x = cx + Math.cos(a) * 90; y = cy + Math.sin(a) * 90;
+      }
+      const pt = room.nearestFree(x, y, 8, (tx, ty) => room.solidAt(tx, ty, true) || room.isPitTile(tx, ty));
+      room.props.push(new G.Props.Skull({ x: pt.x, y: pt.y }));
+      G.FX.burst(pt.x, pt.y, 20, '#e0d8c4', 60, 0.5);    },
+
     spawnWave(list) {
       const P = this.player;
+      this.flowG.update(P.x, P.y); // spawn only where the player can walk to
       for (const entry of list) {
-        const pt = this.randomFloorFar(P.x, P.y, 90) || this.randomFloor(32);
+        const pt = this.randomReachable(90) || this.randomReachable(0) || this.randomFloor(32);
         const def = G.Enemies.get(entry.id);
         const opts = { elite: entry.elite };
         if (def.disguise || def.brain === 'falseally') opts.instant = true; // disguised enemies appear silently
@@ -163,11 +181,10 @@
       const room = this.room;
       const isBoss = G.Bosses.has(id);
       const def = isBoss ? G.Bosses.get(id) : G.Enemies.get(id);
-      const r = def.r || 6;
-      if (G.Physics.overlaps(x, y, r, (tx, ty) => room.solidAt(tx, ty, true) || (!def.flying && room.isPitTile(tx, ty)))) {
-        const p = room.nearestGround(x, y); x = p.x; y = p.y;
-      }
       const e = isBoss ? new G.Boss(def, x, y, opts) : new G.Enemy(def, x, y, opts);
+      // Check the spot with the enemy's real size (elites are 20% larger than their definition).
+      const p = room.nearestFree(e.x, e.y, e.r, e.blockFn());
+      e.x = p.x; e.y = p.y;
       if (opts.tint === 'frozen') {
         e.tint = 'frozen';
         e.artOverride = { body: '#8ec8e8', belly: '#c0e8ff', skin: '#c0e8ff', wing: '#70a8c8', legs: '#6090b0', glow: '#ffffff' };
@@ -226,6 +243,17 @@
         const px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
         const tx = Math.floor(px / TS), ty = Math.floor(py / TS);
         if (room.isStandable(tx, ty)) return room.tileCenter(tx, ty);
+      }
+      return null;
+    },
+    // Random floor tile at least minDist from the player that is reachable on foot
+    // (uses the ground flow field, which must be up to date for the player's position).
+    randomReachable(minDist) {
+      const P = this.player;
+      for (let i = 0; i < 150; i++) {
+        const p = this.randomFloor(24);
+        if (U.dist(p.x, p.y, P.x, P.y) < minDist) continue;
+        if (this.flowG.distAt(p.x, p.y) < G.FlowField.INF) return p;
       }
       return null;
     },
@@ -308,6 +336,7 @@
     _waves(dt) {
       const room = this.room;
       if (!room.locked || room.type !== 'combat') return;
+      this._unstick(dt);
       const alive = this.enemies.some(e => !e.dead && !e.noCredit);
       const corpses = room.props.some(p => p instanceof G.Props.Corpse && !p.dead);
       if (alive || corpses) return;
@@ -318,6 +347,30 @@
       }
       if (this.waveIndex < room.waves.length) this.waveDelay = 0.8;
       else this.clearRoom();
+    },
+
+    // Safety net so a room can never stall: an enemy the player can neither reach nor see
+    // (walled-in pocket, stuck in a wall, stranded by changing terrain) for 3 seconds is
+    // moved to a reachable spot.
+    _unstick(dt) {
+      const room = this.room, P = this.player;
+      for (const e of this.enemies) {
+        if (e.dead || e.noCredit || e.spawning > 0 || e.disguised || e.isBoss || e.isClone) continue;
+        const tx = Math.floor(e.x / TS), ty = Math.floor(e.y / TS);
+        const inSolid = room.solidAt(tx, ty, true) || (!e.flying && room.isPitTile(tx, ty));
+        const flow = e.flying ? this.flowF : this.flowG;
+        const unreachable = inSolid || flow.distAt(e.x, e.y) >= G.FlowField.INF;
+        if (unreachable && (inSolid || !room.los(P.x, P.y, e.x, e.y))) e.stuckT = (e.stuckT || 0) + dt;
+        else e.stuckT = 0;
+        if (e.stuckT < 3) continue;
+        e.stuckT = 0;
+        const pt = this.randomReachable(80) || this.randomReachable(0);
+        if (!pt) continue;
+        const free = room.nearestFree(pt.x, pt.y, e.r, e.blockFn());
+        G.FX.burst(e.x, e.y, 10, '#ff4060', 40, 0.3);
+        e.x = free.x; e.y = free.y; e.kx = 0; e.ky = 0;
+        e.spawning = 0.6; // re-enter with the usual summon circle so it's visible and fair
+      }
     },
 
     _doors() {
