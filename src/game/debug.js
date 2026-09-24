@@ -43,7 +43,8 @@
           let best = null, bd = Infinity;
           for (const e of G.World.enemies) {
             if (e.dead || e.disguised || e.hidden) continue;
-            const d = G.U.dist(P.x, P.y, e.x, e.y);
+            // Prefer targets in line of sight.
+            const d = G.U.dist(P.x, P.y, e.x, e.y) + (G.World.room.los(P.x, P.y, e.x, e.y) ? 0 : 1000);
             if (d < bd) { bd = d; best = e; }
           }
           if (best) {

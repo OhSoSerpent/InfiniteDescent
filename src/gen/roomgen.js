@@ -6,6 +6,9 @@
   const U = G.U, TS = G.CFG.TILE, T = G.T;
 
   const RG = {
+    // Global obstacle amount (1 = baseline). Applied to every generator's obstacle placement.
+    OBSTACLE_MULT: 1.3,
+
     // Tiles that must stay open: door approaches and the room's middle.
     isProtected(room, tx, ty) {
       if (room.nearDoor(tx, ty, 2)) return true;
@@ -32,7 +35,7 @@
     // Scatter clusters of obstacles.
     scatter(room, rng, density = 0.05, list, maxCluster = 4) {
       const area = (room.w - 2) * (room.h - 2);
-      const clusters = Math.round(area * density / 2.5);
+      const clusters = Math.round(area * density * RG.OBSTACLE_MULT / 2.5);
       for (let c = 0; c < clusters; c++) {
         let tx = rng.int(2, room.w - 3), ty = rng.int(2, room.h - 3);
         const style = RG.pickStyle(room, rng, list);
@@ -144,7 +147,7 @@
       // Rows of columns
       const step = rng.pick([4, 5]);
       for (let y = 3; y < room.h - 3; y += step) for (let x = 3; x < room.w - 3; x += step) {
-        if (rng.chance(0.55) && RG.canPlace(room, x, y)) room.setObstacle(x, y, rng.weighted([['column', 3], ['goldstatue', 1], ['goldpile', 2], ['brokencolumn', 1]]));
+        if (rng.chance(0.55 * RG.OBSTACLE_MULT) && RG.canPlace(room, x, y)) room.setObstacle(x, y, rng.weighted([['column', 3], ['goldstatue', 1], ['goldpile', 2], ['brokencolumn', 1]]));
       }
       // A chasm with a moving platform and maybe a treasure island
       if (rng.chance(0.7)) {
@@ -221,9 +224,9 @@
       const vertical = rng.chance(0.5);
       const gap = rng.pick([3, 4]);
       if (vertical) {
-        for (let x = 3; x < room.w - 3; x += gap) for (let y = 3; y < room.h - 3; y++) if (rng.chance(0.55) && RG.canPlace(room, x, y)) room.setObstacle(x, y, 'tomb');
+        for (let x = 3; x < room.w - 3; x += gap) for (let y = 3; y < room.h - 3; y++) if (rng.chance(0.55 * RG.OBSTACLE_MULT) && RG.canPlace(room, x, y)) room.setObstacle(x, y, 'tomb');
       } else {
-        for (let y = 3; y < room.h - 3; y += gap) for (let x = 3; x < room.w - 3; x++) if (rng.chance(0.5) && RG.canPlace(room, x, y)) room.setObstacle(x, y, 'tomb');
+        for (let y = 3; y < room.h - 3; y += gap) for (let x = 3; x < room.w - 3; x++) if (rng.chance(0.5 * RG.OBSTACLE_MULT) && RG.canPlace(room, x, y)) room.setObstacle(x, y, 'tomb');
       }
       // Flaming graves (burning tombs)
       for (const [i, style] of room.obstStyle) if (style === 'tomb' && rng.chance(0.3)) RG.addFlame(room, i % room.w, Math.floor(i / room.w));

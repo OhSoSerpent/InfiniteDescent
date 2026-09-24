@@ -69,7 +69,8 @@
 
     startReload() {
       if (this.flags.bloodMagic || this.reloadT > 0 || this.ammo >= this.stats.mag) return;
-      this.reloadT = this.reloadMax = this.stats.reload;
+      const bonus = (G.Run.bonus && G.Run.bonus.reloadSpeed) || 0;
+      this.reloadT = this.reloadMax = this.stats.reload / (1 + bonus);
       G.Audio.play('reload');
     }
 
@@ -120,7 +121,8 @@
       this.emit(player, ctx, 0);
       for (let i = 1; i < n; i++) this.queue.push({ t: i * BURST_GAP, fn: () => this.emit(player, ctx, i) });
 
-      const interval = this.stats.interval * G.Hooks.weaponMult(this, 'intervalMult', ctx) * player.buffMult('interval');
+      const fireBonus = (G.Run.bonus && G.Run.bonus.fireRate) || 0;
+      const interval = this.stats.interval * G.Hooks.weaponMult(this, 'intervalMult', ctx) * player.buffMult('interval') / (1 + fireBonus);
       this.cool = interval + (n - 1) * BURST_GAP;
       G.Audio.play(this.stats.dmgMult >= 2 ? 'heavy' : 'shoot');
       if (!unlimited && this.ammo <= 0) this.startReload();

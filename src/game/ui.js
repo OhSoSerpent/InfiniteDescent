@@ -165,6 +165,7 @@
       const P = G.World.player;
       s.appendChild(el('h2', { text: 'PAUSED' }));
       s.appendChild(el('p', { class: 'sub', text: 'Level ' + G.Run.levelIndex + ' - ' + G.World.level.biome.name }));
+      s.appendChild(el('p', { class: 'sub', text: 'Room bonuses: ' + G.Run.bonusSummary() }));
       const row = el('div', { class: 'row' });
       P.weapons.forEach(w => {
         const box = el('div', { class: 'weaponbox' }, [el('h3', { text: w.name.toUpperCase() + '  (' + (w.flags.bloodMagic ? 'blood' : w.stats.mag) + ' rds)' })]);

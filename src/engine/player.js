@@ -4,7 +4,7 @@
   'use strict';
   const U = G.U, D = G.Draw, TS = G.CFG.TILE, T = G.T;
 
-  const BASE_SPEED = 105;
+  const BASE_SPEED = 120;
   const BASE_HP = 100;
   const DASH_DIST = 64;
   const DASH_TIME = 0.16;
@@ -78,7 +78,8 @@
     }
 
     speed() {
-      return BASE_SPEED * this.stats.speedMult * this.status.speedMult() * this.buffMult('speed');
+      const roomBonus = 1 + ((G.Run.bonus && G.Run.bonus.moveSpeed) || 0);
+      return BASE_SPEED * this.stats.speedMult * roomBonus * this.status.speedMult() * this.buffMult('speed');
     }
 
     switchTo(i) {

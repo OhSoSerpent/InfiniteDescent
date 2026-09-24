@@ -153,6 +153,26 @@
           break;
       }
       if (room.doors.length) G.RG.ensureConnectivity(room);
+      this.placeAmmo(room, rng);
+    },
+
+    // 1-2 ammo packs on floor tiles reachable on foot from the room's entrances.
+    placeAmmo(room, rng) {
+      const T2 = G.T;
+      const start = G.RG.doorInner(room, room.doors[0]) || { x: Math.floor(room.w / 2), y: Math.floor(room.h / 2) };
+      const reach = G.RG.flood(room, start.x, start.y);
+      const spots = [];
+      for (const i of reach) {
+        const tx = i % room.w, ty = Math.floor(i / room.w);
+        const t = room.tileAt(tx, ty);
+        if ((t !== T2.FLOOR && t !== T2.ICE) || G.RG.isProtected(room, tx, ty) || !G.RG.interior(room, tx, ty, 2)) continue;
+        const c = room.tileCenter(tx, ty);
+        if (room.props.some(p => Math.hypot(p.x - c.x, p.y - c.y) < 24)) continue;
+        spots.push(c);
+      }
+      rng.shuffle(spots);
+      const n = Math.min(spots.length, rng.int(1, 2));
+      for (let i = 0; i < n; i++) room.pickups.push(new G.Pickup('ammo', spots[i].x, spots[i].y, 0, true));
     },
 
     makeWaves(room, rng, index) {
@@ -199,6 +219,8 @@
       trophy.spawn = trophy.tileCenter(Math.floor(tw / 2), th - 3);
       G.RG.ensureConnectivity(trophy);
       G.RG.ensureConnectivity(boss);
+      this.placeAmmo(trophy, rng);
+      this.placeAmmo(boss, rng);
       return { index, biome, rooms: [trophy, boss], start: trophy, boss, relic: null };
     },
   };

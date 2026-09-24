@@ -136,6 +136,9 @@
           }
         }
       }
+      // The hit got through: it spoils this room's / level's flawless bonus.
+      G.World.roomHit = true;
+      if (G.Run.active) G.Run.levelHit = true;
       if (P.hp - amount <= 0) {
         for (const r of Hooks.relics()) {
           if (r.def.onLethal && r.def.onLethal(ctx, r.state, r) === true) {

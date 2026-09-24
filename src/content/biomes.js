@@ -7,7 +7,7 @@
   const T = G.T;
 
   B.add({
-    id: 'earth', index: 1, name: 'Earth', subtitle: 'The mortal wilds',
+    id: 'earth', index: 1, name: 'Earth', subtitle: 'Abandon all hope, all ye who enter',
     palette: {
       floor: ['#3d6b35', '#437539', '#39632f'], floorStyle: 'grass', detail: '#5a8f4a', flower: '#e0d060',
       wall: '#3a3430', wallTop: '#5a524a', pit: '#0a0806', pitEdge: '#2a2018', liquid: '#2f5fa8', liquidHi: '#6a9ae0',

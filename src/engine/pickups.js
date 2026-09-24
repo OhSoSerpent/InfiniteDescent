@@ -17,6 +17,26 @@
         D.circ(p.x, p.y, 3, '#b0ffc0');
       },
     },
+    // Ammo pack: instantly reloads both pistols. Stays on the floor while both are already full.
+    ammo: {
+      r: 4, magnet: 24,
+      canCollect() {
+        const P = G.World.player;
+        return P.weapons.some(w => !w.flags.bloodMagic && (w.ammo < w.stats.mag || w.reloading));
+      },
+      collect() {
+        const P = G.World.player;
+        for (const w of P.weapons) { w.ammo = w.stats.mag; w.reloadT = 0; }
+        G.Audio.play('reload');
+        G.FX.text(P.x, P.y - 16, 'RELOADED', '#f0e080');
+      },
+      draw(p) {
+        const y = p.y + Math.sin(p.t * 4);
+        D.rect(p.x - 4, y - 3, 8, 7, '#2a2410');
+        D.rect(p.x - 3, y - 2, 6, 5, '#6a6a30');
+        for (let i = 0; i < 3; i++) D.rect(p.x - 2 + i * 2, y - 4, 1, 3, '#f0d060');
+      },
+    },
     gold: {
       r: 3, magnet: 40,
       collect(p) {
@@ -33,10 +53,11 @@
   };
 
   class Pickup {
-    constructor(type, x, y, value) {
+    // still: placed items (e.g. ammo packs from level generation) don't pop outward.
+    constructor(type, x, y, value, still = false) {
       this.def = TYPES[type];
       this.type = type; this.x = x; this.y = y; this.value = value;
-      const a = Math.random() * U.TAU, s = 30 + Math.random() * 40;
+      const a = Math.random() * U.TAU, s = still ? 0 : 30 + Math.random() * 40;
       this.vx = Math.cos(a) * s; this.vy = Math.sin(a) * s;
       this.t = 0; this.dead = false; this.r = this.def.r;
     }
@@ -45,7 +66,7 @@
       const P = G.World.player;
       const k = Math.max(0, 1 - 4 * dt);
       this.vx *= k; this.vy *= k;
-      if (P && !P.dead && this.t > 0.3) {
+      if (P && !P.dead && this.t > 0.3 && (!this.def.canCollect || this.def.canCollect(this))) {
         const d = U.dist(this.x, this.y, P.x, P.y);
         if (d < this.def.magnet) {
           const a = U.angle(this.x, this.y, P.x, P.y);

@@ -4,6 +4,13 @@
 
   const LAST_LEVEL = 10;
   const LEVEL_HEAL = 0.25; // fraction of max HP restored when descending to the next level
+  // Permanent (for the run) bonus granted for clearing a combat room without taking damage.
+  const ROOM_BONUS = 0.03;
+  const ROOM_BONUS_STATS = [
+    { key: 'fireRate', label: 'FIRE RATE' },
+    { key: 'moveSpeed', label: 'MOVE SPEED' },
+    { key: 'reloadSpeed', label: 'RELOAD SPEED' },
+  ];
 
   const Run = {
     active: false,
@@ -26,6 +33,8 @@
       this.bossChoices = {};
       this.defeatedBosses = [];
       this.stats = { kills: 0, shots: 0, damageDealt: 0, damageTaken: 0, gold: 0, time: 0 };
+      this.bonus = { fireRate: 0, moveSpeed: 0, reloadSpeed: 0 };
+      this.levelHit = false;
       this.levelIndex = 0;
       this.player = new G.Player(0, 0);
       const S = G.Save.data;
@@ -36,6 +45,7 @@
 
     startLevel(i) {
       this.levelIndex = i;
+      this.levelHit = false; // becomes true the first time the player loses HP this level
       const biome = G.biomeForLevel(i);
       this.chooseBoss(i);
       this.level = G.LevelGen.generate(i, biome, G.rng);
@@ -83,6 +93,20 @@
     undefeatedBosses() {
       const beaten = new Set(this.defeatedBosses.map(id => G.Bosses.get(id).identity || id));
       return G.Bosses.all().filter(d => !d.final && !beaten.has(d.identity || d.id));
+    },
+
+    // Called when a combat room is cleared: +2% (or +3% if untouched) to a random stat.
+    // Called when a combat room is cleared without taking damage: +3% to a random stat.
+    grantRoomBonus() {
+      const stat = G.rng.pick(ROOM_BONUS_STATS);
+      this.bonus[stat.key] += ROOM_BONUS;
+      const P = this.player;
+      const label = '+' + Math.round(ROOM_BONUS * 100) + '% ' + stat.label;
+      G.FX.text(P.x, P.y - 30, label, '#ffe060');
+      G.HUD.toast('FLAWLESS ROOM: ' + label, '#ffe060');
+    },
+    bonusSummary() {
+      return ROOM_BONUS_STATS.map(s => s.label + ' +' + Math.round(this.bonus[s.key] * 100) + '%').join('   ');
     },
 
     // ---- relics

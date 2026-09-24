@@ -57,6 +57,7 @@
       P.dashT = 0;
       const first = !room.visited;
       room.visited = true;
+      this.roomHit = false;
       G.Cam.snap(P.x, P.y, room.pxW, room.pxH);
       this.reveal = null;
       if ((room.type === 'combat') && !room.cleared) {
@@ -152,6 +153,7 @@
       this.projectiles = this.projectiles.filter(p => p.team === 'player');
       G.Audio.play('door');
       G.FX.text(this.player.x, this.player.y - 20, 'CLEARED', '#a0ffa0');
+      if (!this.roomHit) G.Run.grantRoomBonus(); // only flawless rooms grant a stat bonus
       if (G.rng.chance(0.12)) this.addPickup(new G.Pickup('heart', room.pxW / 2, room.pxH / 2, 8));
       G.Hooks.relic('onRoomClear', { room, player: this.player });
     },
